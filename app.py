@@ -79,10 +79,10 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(root_path=APPSettings().root_path, docs_url="/", lifespan=lifespan)
 
+# Call router
 router = APIRouter(prefix="/almacen", tags=["almacen"])
 
 # Operaciones CRUD
-# GET /almacen/productos
 # Obtiene todos los productos
 @router.get("/productos", response_model=ListaProductosResponse)
 
@@ -91,6 +91,7 @@ def product_list(session: Session = Depends(get_db_session)) -> ListaProductosRe
     almacen_db = session.scalars(query).all()
     dtos = [almacen_entity_to_dto(c) for c in almacen_db]
     return ListaProductosResponse(products=dtos)
+
 # Check products by id
 @router.get("/productos/{id}")
 
@@ -115,7 +116,6 @@ def create_product(info: InfoProductRequest, session: Session = Depends(get_db_s
     return almacen_entity_to_dto(new_product)
 
 # Change product info
-#
 @router.put("/productos/{id}", response_model=InfoProductDTO)
 def update_product(id:int, info: InfoProductRequest, session:  Session = Depends(get_db_session)):
     almacen_db = session.scalars(
@@ -141,6 +141,7 @@ def delete_product(id:int, session: Session = Depends(get_db_session)):
     session.delete(almacen_db)
     session.commit()
     return dto
+
 app.include_router(router)
 if __name__ == "__main__":
     uvicorn.run("app:app", port=8080, reload=True)
